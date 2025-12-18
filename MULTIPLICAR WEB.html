@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplicador de Arquivos PDF</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: var(--secondary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        header p {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            background: var(--primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .content {
+            padding: 25px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .result-box {
+            background: white;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 15px 0;
+            background: white;
+        }
+        
+        .file-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .file-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-action {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .file-action:hover {
+            background: #2980b9;
+        }
+        
+        .status {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+        
+        .status-warning {
+            background: rgba(243, 156, 18, 0.2);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+        
+        .status-error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        .actions-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--light);
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        .drag-area {
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 15px 0;
+            background: rgba(52, 152, 219, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .drag-area:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+        
+        .drag-area.active {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: var(--success);
+        }
+        
+        .drag-area i {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .actions-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">PDF</div>
+            <h1>Multiplicador de Arquivos PDF</h1>
+            <p>Crie cópias de um arquivo PDF com nomes personalizados</p>
+        </header>
+        
+        <div class="content">
+            <div class="section">
+                <h2>Passo 1: Arquivo Mãe</h2>
+                <div class="form-group">
+                    <label for="arquivo-mae">Selecione o arquivo PDF principal:</label>
+                    <input type="file" id="arquivo-mae" accept=".pdf">
+                </div>
+                
+                <div class="result-box" id="arquivo-mae-status">
+                    Nenhum arquivo selecionado
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Passo 2: Arquivos de Referência</h2>
+                <div class="form-group">
+                    <label>Selecione ou arraste os arquivos PDF de referência:</label>
+                    <div class="drag-area" id="drag-area">
+                        <i>📄</i>
+                        <h3>Arraste e solte os arquivos aqui</h3>
+                        <p>ou clique para selecionar</p>
+                    </div>
+                    <input type="file" id="arquivos-ref" accept=".pdf" multiple style="display: none;">
+                </div>
+                
+                <div class="result-box">
+                    <div id="arquivos-ref-status">Nenhum arquivo selecionado</div>
+                    <div class="file-list" id="arquivos-ref-list">
+                        <div class="file-item">Os arquivos selecionados aparecerão aqui...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Passo 3: Gerar Arquivos</h2>
+                <button class="btn btn-success btn-block" id="processar">Gerar Arquivos</button>
+                
+                <div class="status status-warning" id="status">
+                    Aguardando processamento...
+                </div>
+                
+                <div class="file-list" id="file-list">
+                    <div class="file-item">Os arquivos gerados aparecerão aqui...</div>
+                </div>
+                
+                <div class="actions-container">
+                    <button class="btn btn-primary btn-block" id="baixar-todos" disabled>Baixar Todos</button>
+                    <button class="btn btn-warning btn-block" id="limpar">Limpar Tudo</button>
+                </div>
+                
+                <div class="result-box">
+                    <div id="resultado-final">Nenhum arquivo processado ainda</div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Esta aplicação permite criar cópias de um arquivo PDF com diferentes nomes</p>
+            <p>Todos os processamentos são realizados localmente no seu navegador</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Elementos da interface
+        const arquivoMaeInput = document.getElementById('arquivo-mae');
+        const arquivoMaeStatus = document.getElementById('arquivo-mae-status');
+        const arquivosRefInput = document.getElementById('arquivos-ref');
+        const dragArea = document.getElementById('drag-area');
+        const arquivosRefStatus = document.getElementById('arquivos-ref-status');
+        const arquivosRefList = document.getElementById('arquivos-ref-list');
+        const processarBtn = document.getElementById('processar');
+        const baixarTodosBtn = document.getElementById('baixar-todos');
+        const limparBtn = document.getElementById('limpar');
+        const statusDiv = document.getElementById('status');
+        const fileListDiv = document.getElementById('file-list');
+        const resultadoFinalDiv = document.getElementById('resultado-final');
+        
+        // Estado da aplicação
+        let arquivoMae = null;
+        let arquivosRef = [];
+        let arquivosGerados = [];
+        
+        // Configurar área de arrastar e soltar
+        dragArea.addEventListener('click', () => {
+            arquivosRefInput.click();
+        });
+        
+        dragArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragArea.classList.add('active');
+        });
+        
+        dragArea.addEventListener('dragleave', () => {
+            dragArea.classList.remove('active');
+        });
+        
+        dragArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragArea.classList.remove('active');
+            
+            if (e.dataTransfer.files.length > 0) {
+                arquivosRefInput.files = e.dataTransfer.files;
+                handleArquivosRefSelecionados();
+            }
+        });
+        
+        // Passo 1: Selecionar arquivo mãe
+        arquivoMaeInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.name.toLowerCase().endsWith('.pdf')) {
+                arquivoMae = file;
+                arquivoMaeStatus.innerHTML = `<strong>Arquivo selecionado:</strong> ${file.name}<br>
+                                              <small>Tamanho: ${formatFileSize(file.size)}</small>`;
+                arquivoMaeStatus.style.color = "green";
+            } else {
+                arquivoMae = null;
+                arquivoMaeStatus.innerHTML = "Erro: Selecione um arquivo PDF válido";
+                arquivoMaeStatus.style.color = "red";
+            }
+        });
+        
+        // Passo 2: Selecionar arquivos de referência
+        arquivosRefInput.addEventListener('change', handleArquivosRefSelecionados);
+        
+        function handleArquivosRefSelecionados() {
+            arquivosRef = Array.from(arquivosRefInput.files).filter(file => 
+                file.name.toLowerCase().endsWith('.pdf')
+            );
+            
+            if (arquivosRef.length > 0) {
+                arquivosRefStatus.innerHTML = `<strong>${arquivosRef.length} arquivo(s) selecionado(s)</strong>`;
+                arquivosRefStatus.style.color = "green";
+                
+                // Listar arquivos selecionados
+                arquivosRefList.innerHTML = '';
+                arquivosRef.forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div>${file.name}</div>
+                        <div>${formatFileSize(file.size)}</div>
+                    `;
+                    arquivosRefList.appendChild(fileItem);
+                });
+            } else {
+                arquivosRefStatus.innerHTML = "Erro: Nenhum arquivo PDF selecionado";
+                arquivosRefStatus.style.color = "red";
+            }
+        }
+        
+        // Passo 3: Processar arquivos
+        processarBtn.addEventListener('click', async function() {
+            // Validar campos
+            if (!arquivoMae) {
+                showStatus("Erro: Selecione o arquivo mãe", "error");
+                return;
+            }
+            
+            if (arquivosRef.length === 0) {
+                showStatus("Erro: Selecione arquivos de referência", "error");
+                return;
+            }
+            
+            // Mostrar status de processamento
+            showStatus("Processando arquivos...", "warning");
+            
+            try {
+                // Processar arquivos
+                const result = await processarArquivos();
+                
+                // Atualizar resultado final
+                if (result.count > 0) {
+                    resultadoFinalDiv.innerHTML = `<strong>Concluído!</strong> ${result.count} arquivos criados baseados em "${arquivoMae.name}".`;
+                    showStatus(`Processamento concluído com sucesso! ${result.count} arquivos gerados.`, "success");
+                    
+                    // Habilitar botão de baixar todos
+                    baixarTodosBtn.disabled = false;
+                } else {
+                    resultadoFinalDiv.innerHTML = "Nenhum arquivo gerado.";
+                    showStatus("Nenhum arquivo gerado.", "error");
+                }
+            } catch (error) {
+                showStatus(`Erro: ${error.message}`, "error");
+            }
+        });
+        
+        // Botão para baixar todos os arquivos
+        baixarTodosBtn.addEventListener('click', function() {
+            if (arquivosGerados.length === 0) {
+                showStatus("Nenhum arquivo para baixar", "warning");
+                return;
+            }
+            
+            showStatus("Preparando download de todos os arquivos...", "warning");
+            
+            // Baixar cada arquivo com pequeno atraso entre eles
+            arquivosGerados.forEach((arquivo, index) => {
+                setTimeout(() => {
+                    const a = document.createElement('a');
+                    a.href = arquivo.url;
+                    a.download = arquivo.nome;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }, index * 300); // 300ms de atraso entre cada download
+            });
+            
+            setTimeout(() => {
+                showStatus(`Todos os ${arquivosGerados.length} arquivos foram baixados!`, "success");
+            }, arquivosGerados.length * 300 + 500);
+        });
+        
+        // Botão para limpar tudo
+        limparBtn.addEventListener('click', function() {
+            // Resetar todos os estados
+            arquivoMae = null;
+            arquivosRef = [];
+            arquivosGerados = [];
+            
+            // Resetar inputs
+            arquivoMaeInput.value = '';
+            arquivosRefInput.value = '';
+            
+            // Resetar exibições
+            arquivoMaeStatus.innerHTML = "Nenhum arquivo selecionado";
+            arquivoMaeStatus.style.color = "inherit";
+            arquivosRefStatus.innerHTML = "Nenhum arquivo selecionado";
+            arquivosRefStatus.style.color = "inherit";
+            arquivosRefList.innerHTML = '<div class="file-item">Os arquivos selecionados aparecerão aqui...</div>';
+            fileListDiv.innerHTML = '<div class="file-item">Os arquivos gerados aparecerão aqui...</div>';
+            resultadoFinalDiv.innerHTML = "Nenhum arquivo processado ainda";
+            
+            // Resetar status
+            showStatus("Aguardando processamento...", "warning");
+            
+            // Desabilitar botão de baixar todos
+            baixarTodosBtn.disabled = true;
+        });
+        
+        // Função para processar os arquivos
+        async function processarArquivos() {
+            // Limpar lista de arquivos
+            fileListDiv.innerHTML = '';
+            arquivosGerados = [];
+            
+            let count = 0;
+            
+            // Para cada arquivo de referência
+            for (const arquivoRef of arquivosRef) {
+                const nomeArquivo = arquivoRef.name;
+                count++;
+                
+                // Criar uma cópia do arquivo mãe com o nome do arquivo de referência
+                const novoArquivo = await criarCopiaArquivo(nomeArquivo);
+                arquivosGerados.push(novoArquivo);
+                
+                // Adicionar à lista de arquivos processados
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div>${novoArquivo.nome}</div>
+                    <button class="file-action" data-url="${novoArquivo.url}">Baixar</button>
+                `;
+                fileListDiv.appendChild(fileItem);
+            }
+            
+            // Adicionar eventos para os botões de download
+            document.querySelectorAll('.file-action').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = this.parentElement.querySelector('div').textContent;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                });
+            });
+            
+            return { count, arquivosGerados };
+        }
+        
+        // Função para criar uma cópia do arquivo
+        async function criarCopiaArquivo(nome) {
+            // Criar um blob do arquivo mãe
+            const blob = new Blob([await arquivoMae.arrayBuffer()], { type: 'application/pdf' });
+            
+            // Criar URL para o novo arquivo
+            const url = URL.createObjectURL(blob);
+            
+            return {
+                nome: nome,
+                url: url,
+                tamanho: arquivoMae.size
+            };
+        }
+        
+        // Função para exibir mensagens de status
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = 'status';
+            
+            switch(type) {
+                case 'success':
+                    statusDiv.classList.add('status-success');
+                    break;
+                case 'warning':
+                    statusDiv.classList.add('status-warning');
+                    break;
+                case 'error':
+                    statusDiv.classList.add('status-error');
+                    break;
+            }
+        }
+        
+        // Função para formatar tamanho de arquivo
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

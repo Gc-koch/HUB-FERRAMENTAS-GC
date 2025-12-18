@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Removedor de Fundo em Lote</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+            padding: 40px;
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #1a2a6c, #b21f1f);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .container::after {
+            content: "";
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, #b22f1f, #1a2a6c);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            color: #1a2a6c;
+            margin-bottom: 10px;
+            font-size: 2.8rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #555;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(26, 42, 108, 0.05);
+        }
+
+        .upload-area {
+            border: 3px dashed #1a2a6c;
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+            background: rgba(236, 240, 241, 0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #b21f1f;
+            background: rgba(178, 31, 31, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 60px;
+            color: #1a2a6c;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            color: #333;
+            margin: 10px 0;
+            font-size: 1.2rem;
+        }
+
+        .upload-text strong {
+            color: #b21f1f;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(to right, #1a2a6c, #2a3a8c);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(26, 42, 108, 0.4);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(26, 42, 108, 0.6);
+        }
+
+        .file-list {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            text-align: left;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .file-icon {
+            color: #1a2a6c;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .file-name {
+            flex-grow: 1;
+            font-size: 0.95rem;
+        }
+
+        .file-size {
+            color: #777;
+            font-size: 0.85rem;
+        }
+
+        .process-btn {
+            background: linear-gradient(to right, #b21f1f, #c22f2f);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: all 0.3s;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(178, 31, 31, 0.4);
+            display: none;
+        }
+
+        .process-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(178, 31, 31, 0.6);
+        }
+
+        .process-btn:disabled {
+            background: linear-gradient(to right, #95a5a6, #7f8c8d);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-container {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            margin: 30px auto;
+            background: #f1f1f1;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: linear-gradient(90deg, #1a2a6c, #b21f1f);
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .results-container {
+            display: none;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(26, 42, 108, 0.05);
+            border-radius: 15px;
+        }
+
+        .results-title {
+            color: #1a2a6c;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .thumbnails-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .thumbnail {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            background: white;
+            padding: 10px;
+        }
+
+        .thumbnail:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .thumbnail-img {
+            width: 100%;
+            height: 120px;
+            object-fit: contain;
+            background: linear-gradient(45deg, #f1f1f1, #e1e1e1);
+            border-radius: 5px;
+        }
+
+        .thumbnail-name {
+            font-size: 0.8rem;
+            margin-top: 8px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(to right, #1a2a6c, #2a3a8c);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 8px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 10px rgba(26, 42, 108, 0.3);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 42, 108, 0.4);
+        }
+
+        .download-all {
+            background: linear-gradient(to right, #b21f1f, #c22f2f);
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            margin-top: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-all:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(178, 31, 31, 0.4);
+        }
+
+        .loading {
+            display: none;
+            margin: 30px 0;
+        }
+
+        .spinner {
+            border: 5px solid rgba(26, 42, 108, 0.2);
+            border-top: 5px solid #1a2a6c;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .loading-text {
+            color: #333;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .upload-area {
+                padding: 30px 20px;
+            }
+            
+            .thumbnails-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+
+        /* Scrollbar personalizada */
+        .file-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .file-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .file-list::-webkit-scrollbar-thumb {
+            background: #1a2a6c;
+            border-radius: 10px;
+        }
+        
+        .file-list::-webkit-scrollbar-thumb:hover {
+            background: #b21f1f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <h1><i class="fas fa-batch-processing"></i> Removedor de Fundo em Lote</h1>
+            <p class="subtitle">Carregue múltiplas imagens, remova o fundo automaticamente e obtenha recortes perfeitos em poucos segundos</p>
+            
+            <div class="upload-container">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Arraste e solte suas imagens aqui</p>
+                    <p class="upload-text">ou</p>
+                    <button class="upload-btn">Selecionar Arquivos</button>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*" multiple>
+                </div>
+                
+                <div class="file-list" id="fileList">
+                    <!-- Arquivos selecionados serão listados aqui -->
+                </div>
+            </div>
+            
+            <button id="processBtn" class="process-btn">
+                <i class="fas fa-play-circle"></i> Processar Todas as Imagens
+            </button>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar">0%</div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p class="loading-text">Processando imagens, por favor aguarde...</p>
+            </div>
+            
+            <div class="results-container" id="resultsContainer">
+                <h2 class="results-title"><i class="fas fa-check-circle"></i> Processamento Concluído!</h2>
+                
+                <div class="thumbnails-grid" id="thumbnailsGrid">
+                    <!-- Miniaturas dos resultados serão adicionadas aqui -->
+                </div>
+                
+                <a href="#" id="downloadAllBtn" class="download-btn download-all">
+                    <i class="fas fa-download"></i> Baixar Todas as Imagens
+                </a>
+            </div>
+            
+            <div class="footer">
+                <p>Esta aplicação utiliza tecnologia de IA avançada para remoção de fundo e recorte de objetos
+                                                               </p>
+<div class=>
+                <p>Promp By:HR</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_KEY = "458MyMQLPWTbLcx9eo8DB826";
+            const API_URL = "https://api.remove.bg/v1.0/removebg";
+            
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+            const processBtn = document.getElementById('processBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const loading = document.getElementById('loading');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const thumbnailsGrid = document.getElementById('thumbnailsGrid');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+            
+            let filesToProcess = [];
+            let processedFiles = [];
+            
+            // Abrir seletor de arquivos ao clicar no botão ou área
+            uploadArea.querySelector('.upload-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                fileInput.click();
+            });
+            
+            uploadArea.addEventListener('click', (e) => {
+                if (e.target === uploadArea) {
+                    fileInput.click();
+                }
+            });
+            
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+            
+            // Seleção de arquivos via input
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) {
+                    handleFiles(fileInput.files);
+                }
+            });
+            
+            function handleFiles(fileList) {
+                filesToProcess = [];
+                const newFiles = Array.from(fileList).filter(file => 
+                    file.type.match('image.*') && file.size <= 5 * 1024 * 1024
+                );
+                
+                if (newFiles.length === 0) {
+                    alert('Por favor, selecione imagens válidas (JPG, PNG ou WEBP) com tamanho máximo de 5MB!');
+                    return;
+                }
+                
+                filesToProcess = newFiles;
+                renderFileList();
+                processBtn.style.display = 'block';
+                resultsContainer.style.display = 'none';
+            }
+            
+            function renderFileList() {
+                if (filesToProcess.length === 0) {
+                    fileList.style.display = 'none';
+                    return;
+                }
+                
+                fileList.style.display = 'block';
+                fileList.innerHTML = '';
+                
+                filesToProcess.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    
+                    const fileSize = (file.size / 1024).toFixed(1) + ' KB';
+                    
+                    fileItem.innerHTML = `
+                        <i class="fas fa-file-image file-icon"></i>
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${fileSize}</div>
+                    `;
+                    
+                    fileList.appendChild(fileItem);
+                });
+            }
+            
+            // Processar todas as imagens
+            processBtn.addEventListener('click', async () => {
+                if (filesToProcess.length === 0) return;
+                
+                // Resetar estado
+                processedFiles = [];
+                thumbnailsGrid.innerHTML = '';
+                progressBar.style.width = '0%';
+                progressBar.textContent = '0%';
+                progressContainer.style.display = 'block';
+                loading.style.display = 'block';
+                processBtn.disabled = true;
+                resultsContainer.style.display = 'none';
+                
+                try {
+                    for (let i = 0; i < filesToProcess.length; i++) {
+                        const file = filesToProcess[i];
+                        
+                        // Atualizar barra de progresso
+                        const progress = Math.round((i / filesToProcess.length) * 100);
+                        progressBar.style.width = `${progress}%`;
+                        progressBar.textContent = `${progress}%`;
+                        
+                        // Processar arquivo
+                        const processedFile = await processFile(file);
+                        processedFiles.push(processedFile);
+                        
+                        // Adicionar miniatura
+                        addThumbnail(processedFile);
+                    }
+                    
+                    // Finalizar barra de progresso
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = '100%';
+                    
+                    // Mostrar resultados
+                    resultsContainer.style.display = 'block';
+                    downloadAllBtn.style.display = 'inline-flex';
+                    
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert(`Erro ao processar imagens: ${error.message}. Por favor, tente novamente.`);
+                } finally {
+                    // Esconder loading
+                    loading.style.display = 'none';
+                    processBtn.disabled = false;
+                }
+            });
+            
+            async function processFile(file) {
+                try {
+                    const formData = new FormData();
+                    formData.append('image_file', file);
+                    formData.append('size', 'auto');
+                    formData.append('crop', 'true');
+                    
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'X-Api-Key': API_KEY
+                        },
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.errors[0]?.title || 'Erro na API');
+                    }
+                    
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    
+                    return {
+                        name: file.name.replace(/\.[^/.]+$/, "") + '.png',
+                        url: url,
+                        blob: blob
+                    };
+                    
+                } catch (error) {
+                    console.error(`Erro ao processar ${file.name}:`, error);
+                    throw error;
+                }
+            }
+            
+            function addThumbnail(file) {
+                const thumbnail = document.createElement('div');
+                thumbnail.className = 'thumbnail';
+                
+                thumbnail.innerHTML = `
+                    <img src="${file.url}" class="thumbnail-img">
+                    <div class="thumbnail-name">${file.name}</div>
+                    <a href="${file.url}" download="${file.name}" class="download-btn">
+                        <i class="fas fa-download"></i> Baixar
+                    </a>
+                `;
+                
+                thumbnailsGrid.appendChild(thumbnail);
+            }
+            
+            // Baixar todas as imagens
+            downloadAllBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                processedFiles.forEach(file => {
+                    const link = document.createElement('a');
+                    link.href = file.url;
+                    link.download = file.name;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

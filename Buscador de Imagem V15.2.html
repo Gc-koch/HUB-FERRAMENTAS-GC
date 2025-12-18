@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Imagem por EAN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background-color: #121212;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url('https://th.bing.com/th/id/OIP.gLZubKiX2XiJS9COz6xBNgHaFj?rs=1&pid=ImgDetMain');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #f0f0f0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(25, 25, 35, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            margin-top: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-container {
+            padding: 25px;
+            background: rgba(30, 30, 45, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            height: 50px;
+            padding: 0 20px;
+            font-size: 1.1rem;
+            border: 2px solid #4cc9f0;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #f72585;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(247, 37, 133, 0.3);
+        }
+        
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+        
+        button {
+            flex: 1;
+            height: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        #searchBtn {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            color: white;
+        }
+        
+        #searchBtn:hover {
+            background: linear-gradient(135deg, #4895ef, #4cc9f0);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 149, 239, 0.4);
+        }
+        
+        #clearBtn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f0f0f0;
+            border: 2px solid #4cc9f0;
+        }
+        
+        #clearBtn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .image-container {
+            padding: 25px;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-color: white; /* Fundo branco para a área da imagem */
+        }
+        
+        .image-placeholder {
+            text-align: center;
+            padding: 30px;
+            opacity: 0.7;
+            color: #333; /* Cor escura para contraste com fundo branco */
+        }
+        
+        .image-placeholder i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #4cc9f0;
+        }
+        
+        .image-placeholder p {
+            font-size: 1.2rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        #resultImage {
+            max-width: 100%;
+            max-height: 600px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid rgba(0, 0, 0, 0.1); /* Borda escura para contraste com fundo branco */
+        }
+        
+        #resultImage:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            border-color: #4cc9f0;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.3rem;
+            color: #f72585;
+            background: rgba(247, 37, 133, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(247, 37, 133, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .source-info {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 10;
+        }
+        
+        .source-info a {
+            color: #4cc9f0;
+            text-decoration: none;
+        }
+        
+        .source-info a:hover {
+            text-decoration: underline;
+        }
+        
+        .loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(76, 201, 240, 0.2);
+            border-top: 6px solid #4cc9f0;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading p {
+            font-size: 1.2rem;
+            color: #333; /* Cor escura para contraste com fundo branco */
+        }
+        
+        .history-container {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 30px;
+            background: rgba(25, 25, 35, 0.9);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .history-container h2 {
+            margin-bottom: 15px;
+            color: #4cc9f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #historyList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            border-color: #4cc9f0;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+        
+        /* Modal para imagem ampliada */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 80vh;
+            animation-name: zoom;
+            animation-duration: 0.3s;
+        }
+        
+        @keyframes zoom {
+            from {transform: scale(0.8);}
+            to {transform: scale(1);}
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .input-group, .btn-group {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .image-container {
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-barcode"></i> Buscador de Imagens por EAN</h1>
+            <p>Encontre imagens de produtos digitando seu código EAN (GTIN)</p>
+        </div>
+        
+        <div class="search-container">
+            <div class="input-group">
+                <input type="text" id="eanInput" placeholder="Digite o código EAN aqui...">
+            </div>
+            
+            <div class="btn-group">
+                <button id="searchBtn">
+                    <i class="fas fa-search"></i> Buscar Imagem
+                </button>
+                <button id="clearBtn">
+                    <i class="fas fa-times"></i> Limpar
+                </button>
+            </div>
+        </div>
+        
+        <div class="image-container">
+            <div class="image-placeholder" id="imagePlaceholder">
+                <i class="fas fa-image"></i>
+                <p>Digite um código EAN acima e clique em "Buscar Imagem" para ver o resultado</p>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Buscando imagem...</p>
+            </div>
+            
+            <img id="resultImage" src="" alt="Resultado da busca por EAN" style="display:none;">
+            <div id="errorMessage" class="error-message" style="display:none;"></div>
+            
+            <div class="source-info" id="sourceInfo" style="display:none;">
+                Fonte: <a href="#" id="superkochLink">SuperKoch</a> | <a href="#" id="blueSoftLink">BlueSoft</a> | <a href="#" id="myp7Link">Myp7</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="history-container">
+        <h2><i class="fas fa-history"></i> Histórico de Buscas</h2>
+        <div id="historyList"></div>
+    </div>
+    
+    <div class="footer">
+        <p>Buscador de Imagens por EAN &copy; 2025 | Promp HR ></i></p>
+    </div>
+    
+    <!-- Modal para imagem ampliada -->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+        // Elementos DOM
+        const eanInput = document.getElementById('eanInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultImage = document.getElementById('resultImage');
+        const errorMessage = document.getElementById('errorMessage');
+        const sourceInfo = document.getElementById('sourceInfo');
+        const superkochLink = document.getElementById('superkochLink');
+        const blueSoftLink = document.getElementById('blueSoftLink');
+        const myp7Link = document.getElementById('myp7Link');
+        const loading = document.getElementById('loading');
+        const imagePlaceholder = document.getElementById('imagePlaceholder');
+        const historyList = document.getElementById('historyList');
+        
+        // Modal
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+        const span = document.getElementsByClassName("close")[0];
+        
+        // Histórico de buscas
+        let searchHistory = JSON.parse(localStorage.getItem('eanSearchHistory')) || [];
+        
+        // Função para buscar imagem
+        function searchImage() {
+            const ean = eanInput.value.trim();
+            
+            if (!ean) {
+                showError('Por favor, insira um código EAN válido');
+                return;
+            }
+            
+            // Adicionar ao histórico
+            if (!searchHistory.includes(ean)) {
+                searchHistory.unshift(ean);
+                if (searchHistory.length > 5) searchHistory.pop();
+                localStorage.setItem('eanSearchHistory', JSON.stringify(searchHistory));
+                updateHistory();
+            }
+            
+            // Mostrar loading
+            showLoading();
+            
+            // URLs - NOVA FONTE PRIORITÁRIA
+            const superkochUrl = 'https://imagens.superkoch.com.br/' + ean + '.jpg';
+            const primaryUrl = 'https://cdn-cosmos.bluesoft.com.br/products/' + ean;
+            const secondaryUrlJpg = 'https://myp7s3.s3.amazonaws.com/portalkoch/' + ean + '_1.jpg';
+            const secondaryUrlPng = 'https://myp7s3.s3.amazonaws.com/portalkoch/' + ean + '_1.png';
+            
+            // Configurar links
+            superkochLink.href = superkochUrl;
+            superkochLink.onclick = (e) => {
+                e.preventDefault();
+                resultImage.src = superkochUrl;
+                modalImg.src = superkochUrl;
+            };
+            
+            blueSoftLink.href = primaryUrl;
+            blueSoftLink.onclick = (e) => {
+                e.preventDefault();
+                resultImage.src = primaryUrl;
+                modalImg.src = primaryUrl;
+            };
+            
+            myp7Link.href = secondaryUrlJpg;
+            myp7Link.onclick = (e) => {
+                e.preventDefault();
+                resultImage.src = secondaryUrlJpg;
+                modalImg.src = secondaryUrlJpg;
+            };
+            
+            // Tentar primeiro a NOVA FONTE PRIORITÁRIA (SuperKoch)
+            testImage(superkochUrl)
+                .then(() => {
+                    displayImage(superkochUrl, 'SuperKoch');
+                })
+                .catch(() => {
+                    // Tentar segundo site (BlueSoft)
+                    testImage(primaryUrl)
+                        .then(() => {
+                            displayImage(primaryUrl, 'BlueSoft');
+                        })
+                        .catch(() => {
+                            // Tentar terceiro site (JPG)
+                            testImage(secondaryUrlJpg)
+                                .then(() => {
+                                    displayImage(secondaryUrlJpg, 'Myp7');
+                                })
+                                .catch(() => {
+                                    // Tentar terceiro site (PNG)
+                                    testImage(secondaryUrlPng)
+                                        .then(() => {
+                                            displayImage(secondaryUrlPng, 'Myp7');
+                                        })
+                                        .catch(() => {
+                                            showError(`Nenhuma imagem encontrada para o EAN: ${ean}`);
+                                        });
+                                });
+                        });
+                });
+        }
+        
+        // Função para testar se a imagem existe
+        function testImage(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve();
+                img.onerror = () => reject();
+                img.src = url;
+            });
+        }
+        
+        // Função para exibir a imagem
+        function displayImage(url, source) {
+            hideLoading();
+            imagePlaceholder.style.display = 'none';
+            resultImage.src = url;
+            resultImage.style.display = 'block';
+            resultImage.alt = `Imagem do produto EAN: ${eanInput.value}`;
+            errorMessage.style.display = 'none';
+            sourceInfo.style.display = 'block';
+            
+            // Configurar a imagem para o modal
+            resultImage.onclick = function() {
+                modal.style.display = "block";
+                modalImg.src = url;
+            };
+        }
+        
+        // Fechar modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+        
+        // Fechar ao clicar fora da imagem
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+        
+        // Função para mostrar erro
+        function showError(message) {
+            hideLoading();
+            imagePlaceholder.style.display = 'none';
+            resultImage.style.display = 'none';
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            sourceInfo.style.display = 'none';
+        }
+        
+        // Função para mostrar loading
+        function showLoading() {
+            imagePlaceholder.style.display = 'none';
+            resultImage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            sourceInfo.style.display = 'none';
+            loading.style.display = 'flex';
+        }
+        
+        // Função para esconder loading
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+        
+        // Função para limpar resultados
+        function clearResults() {
+            eanInput.value = '';
+            resultImage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            sourceInfo.style.display = 'none';
+            imagePlaceholder.style.display = 'flex';
+        }
+        
+        // Atualizar histórico
+        function updateHistory() {
+            historyList.innerHTML = '';
+            searchHistory.forEach(ean => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `<i class="fas fa-barcode"></i> ${ean}`;
+                historyItem.onclick = () => {
+                    eanInput.value = ean;
+                    searchImage();
+                };
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        // Event Listeners
+        searchBtn.addEventListener('click', searchImage);
+        
+        clearBtn.addEventListener('click', clearResults);
+        
+        eanInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                searchImage();
+            }
+        });
+        
+        eanInput.addEventListener('focus', function() {
+            this.select();
+        });
+        
+        // Inicializar histórico
+        updateHistory();
+        
+        // Focar no input ao carregar
+        window.onload = () => {
+            eanInput.focus();
+        };
+    </script>
+</body>
+</html>
