@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub de Ferramentas Koch - Gerenciamento de Categorias</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0056b3; /* Azul Koch */
+            --primary-light: #e6f0ff;
+            --primary-dark: #003d82;
+            --secondary: #f8f9fa;
+            --light: #ffffff;
+            --dark: #333333;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --card-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8fafc;
+            background-image: linear-gradient(to bottom, #f1f5f9, #e2e8f0);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        
+        .logo {
+            height: 80px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto 25px;
+        }
+        
+        .breadcrumb {
+            background-color: var(--primary-light);
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .breadcrumb i {
+            margin-right: 10px;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .path-text {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+        
+        .tools-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .tool-card {
+            background-color: var(--light);
+            border-radius: 12px;
+            padding: 30px;
+            transition: all 0.4s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-shadow);
+            border-color: var(--primary);
+        }
+        
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .tool-card:hover::before {
+            width: 8px;
+        }
+        
+        .icon-container {
+            width: 70px;
+            height: 70px;
+            background: var(--primary-light);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .tool-card:hover .icon-container {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            transform: rotate(5deg);
+        }
+        
+        .icon-container i {
+            font-size: 2rem;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .tool-card:hover .icon-container i {
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .tool-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .tool-card p {
+            margin-bottom: 25px;
+            color: #555;
+            flex-grow: 1;
+            line-height: 1.7;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 86, 179, 0.2);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: var(--primary-dark);
+            transition: width 0.4s ease;
+            z-index: -1;
+        }
+        
+        .btn:hover::after {
+            width: 100%;
+        }
+        
+        .btn:hover {
+            box-shadow: 0 6px 12px rgba(0, 86, 179, 0.3);
+        }
+        
+        .btn i {
+            margin-right: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 15px;
+            color: var(--gray);
+            font-size: 0.6rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .path-info {
+            font-family: 'Courier New', monospace;
+            background-color: var(--primary-light);
+            padding: 8px 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: inline-block;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+        }
+        
+        /* Decoração adicional */
+        .decoration {
+            position: fixed;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        .circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary);
+            top: -100px;
+            right: -100px;
+        }
+        
+        .triangle {
+            width: 200px;
+            height: 200px;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-bottom: 173px solid var(--primary);
+            bottom: -100px;
+            left: -50px;
+            transform: rotate(15deg);
+        }
+        
+        @media (max-width: 768px) {
+            .tools-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .logo {
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="decoration circle"></div>
+    <div class="decoration triangle"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="K:\Gerenciamento Categorias\Hian\01-FERRAMENTAS GC\logo2.png" alt="Logo Koch" class="logo">
+                <div>
+                    <h1>Hub de Ferramentas GC</h1>
+                    <p class="subtitle"></p>
+                </div>
+            </div>
+            <!--
+            <div class="breadcrumb">
+                <i class="fas fa-folder"></i>
+                <span class="path-text">Acesse todas as ferramentas de gerenciamento de categorias em um único lugar</span>
+            </div>
+-->
+        </header>
+        
+        <div class="tools-container">
+            <!-- Buscador de Imagem por EAN -->
+            <div class="tool-card">
+                <div class="icon-container">
+                    <i class="fas fa-barcode"></i>
+                </div>
+                <h3>Buscador de Imagens por EAN</h3>
+                <p>Encontre imagens de produtos digitando seu código EAN (GTIN). Busca em múltiplas fontes para garantir os melhores resultados.</p>
+                <a href="K:\Gerenciamento Categorias\Hian\01-FERRAMENTAS GC/Buscador de Imagem V15.2.html" class="btn">
+                    <i class="fas fa-external-link-alt"></i> Acessar Ferramenta
+                </a>
+            </div>
+            
+            <!-- Mescla Racional Exposição -->
+            <div class="tool-card">
+                <div class="icon-container">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h3>Mescla Racional Exposição</h3>
+                <p>Mescle e substitua páginas de PDFs de forma rápida. Ideal para documentos técnicos e apresentações profissionais.</p>
+                <a href="K:\Gerenciamento Categorias\Hian\01-FERRAMENTAS GC\MESCLA RACIONAL EXPOSICAO.html" class="btn">
+                    <i class="fas fa-external-link-alt"></i> Acessar Ferramenta
+                </a>
+            </div>
+            
+            <!-- Multiplicador de Arquivos PDF -->
+            <div class="tool-card">
+                <div class="icon-container">
+                    <i class="fas fa-copy"></i>
+                </div>
+                <h3>Multiplicador de Arquivos PDF</h3>
+                <p>Crie cópias de um arquivo PDF com nomes personalizados baseados em arquivos de referência. Economize tempo em tarefas repetitivas.</p>
+                <a href="K:\Gerenciamento Categorias\Hian\01-FERRAMENTAS GC\MULTIPLICAR WEB.html" class="btn">
+                    <i class="fas fa-external-link-alt"></i> Acessar Ferramenta
+                </a>
+            </div>
+           
+            <!-- Lista de Lojas SuperKoch (NOVO) -->
+            <div class="tool-card">
+                <div class="icon-container">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h3>Lista de Lojas SuperKoch</h3>
+                <p>Acesse informações detalhadas de todas as lojas da rede Koch, incluindo endereços, contatos e horários de funcionamento.(ACESSE USANDO O USUÁRIO DA CON5)</p>
+                <a href="https://listalojas.superkoch.com.br/" target="_blank" class="btn">
+                    <i class="fas fa-external-link-alt"></i> Acessar Site
+                </a>
+            </div>
+
+            <!-- Contato dos Gerentes -->
+            <div class="tool-card">
+                <div class="icon-container">
+                    <i class="fas fa-address-book"></i>
+                </div>
+                <h3>Contato dos Gerentes</h3>
+                <p>Acesse a lista de contatos dos gerentes das lojas SuperKoch. Entre em contato diretamente com os responsáveis.</p>
+                <a href="https://contatogerentes.superkoch.com.br/" target="_blank" class="btn">
+                    <i class="fas fa-external-link-alt"></i> Acessar Site
+                </a>
+            </div>
+            
+            <!-- Personalizador de Números -->
+            <div class="tool-card">
+                <div class="icon-container">
+                    <i class="fas fa-list-ol"></i>
+                </div>
+                <h3>Personalizador de Números</h3>
+                <p>Selecione itens desejados e gere listas personalizadas. Filtre, selecione e copie resultados formatados rapidamente.</p>
+                <a href="K:\Gerenciamento Categorias\Hian\01-FERRAMENTAS GC\Personalizador de N lojas.html" class="btn">
+                    <i class="fas fa-external-link-alt"></i> Acessar Ferramenta
+                </a>
+            </div>
+            
+            <!-- Sistema de Controle de Ação -->
+            <div class="tool-card">
+                <div class="icon-container">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3>Sistema de Controle de Ação</h3>
+                <p>Controle e acompanhe ações e atividades de forma organizada. Gerencie tarefas, prazos e responsáveis em um único sistema.</p>
+                <a href="K:\Gerenciamento Categorias\Hian\01-FERRAMENTAS GC\Sistema de controle.html" class="btn">
+                    <i class="fas fa-external-link-alt"></i> Acessar Ferramenta
+                </a>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Hub de Ferramentas Koch - Gerenciamento de Categorias</p>
+            <div class="path-info">By HR</div>
+        </footer>
+    </div>
+
+    <script>
+        // Efeito de digitação no breadcrumb
+        document.addEventListener('DOMContentLoaded', function() {
+            const pathText = document.querySelector('.path-text');
+            const fullPath = "Acesse todas as ferramentas de gerenciamento de categorias em um único lugar";
+            let i = 0;
+            
+            pathText.textContent = '';
+            
+            function typeWriter() {
+                if (i < fullPath.length) {
+                    pathText.textContent += fullPath.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 30);
+                }
+            }
+            
+            setTimeout(typeWriter, 500);
+            
+            // Adicionar efeito de onda nos botões
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const x = e.clientX - e.target.getBoundingClientRect().left;
+                    const y = e.clientY - e.target.getBoundingClientRect().top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
