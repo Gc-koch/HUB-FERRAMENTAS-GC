@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitor de QRCode</title>
+    <title>Validador de QRCode - PDF e PNG</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== RESET E CONFIGURAÇÕES ===== */
+        /* Reset e configurações gerais */
         * {
             margin: 0;
             padding: 0;
@@ -26,7 +26,7 @@
             margin: 0 auto;
         }
 
-        /* ===== HEADER SIMPLES ===== */
+        /* Header */
         header {
             text-align: center;
             margin-bottom: 30px;
@@ -45,7 +45,7 @@
             font-size: 0.95rem;
         }
 
-        /* ===== ÁREA DE UPLOAD ===== */
+        /* Área de upload */
         .upload-section {
             background: white;
             padding: 25px;
@@ -103,7 +103,7 @@
             display: none;
         }
 
-        /* ===== BOTÕES PRINCIPAIS ===== */
+        /* Botões */
         .button {
             background: #3b82f6;
             color: white;
@@ -155,7 +155,7 @@
             flex-wrap: wrap;
         }
 
-        /* ===== CONTROLES DE SELEÇÃO ===== */
+        /* Controles de seleção */
         .selection-controls {
             display: flex;
             align-items: center;
@@ -181,7 +181,7 @@
             cursor: pointer;
         }
 
-        /* ===== LISTA DE ARQUIVOS ===== */
+        /* Lista de arquivos */
         .files-list {
             background: white;
             border-radius: 12px;
@@ -289,7 +289,7 @@
             cursor: not-allowed;
         }
 
-        /* ===== ESTADO VAZIO ===== */
+        /* Estado vazio */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -302,7 +302,7 @@
             margin-bottom: 15px;
         }
 
-        /* ===== FOOTER ===== */
+        /* Footer */
         .footer {
             text-align: center;
             padding: 20px;
@@ -311,7 +311,7 @@
             margin-top: 30px;
         }
 
-        /* ===== LOADING ===== */
+        /* Loading */
         .loading {
             display: none;
             text-align: center;
@@ -333,7 +333,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* ===== RESPONSIVIDADE ===== */
+        /* Responsividade */
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -389,7 +389,7 @@
             }
         }
 
-        /* ===== NOTIFICAÇÃO ===== */
+        /* Notificação */
         .notification {
             position: fixed;
             top: 20px;
@@ -413,7 +413,7 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-qrcode"></i> Leitor de QRCode</h1>
+            <h1><i class="fas fa-qrcode"></i> Validador de QRCode</h1>
             <p class="subtitle">Extraia e abra links de QRCodes em PDFs e PNGs</p>
         </header>
         
@@ -468,22 +468,21 @@
                 <p>Nenhum arquivo selecionado</p>
                 <p style="font-size: 0.9rem; margin-top: 5px;">Adicione arquivos PDF ou PNG para começar</p>
             </div>
-            <!-- Lista de arquivos será inserida aqui -->
         </div>
 
         <div class="footer">
-            <p>Leitor de QRCode &copy; 2024 • Suporte a PDF, PNG e JPG • Processamento 100% local</p>
+            <p>Validador de QRCode &copy; 2024 • Suporte a PDF, PNG e JPG • Processamento 100% local</p>
         </div>
     </div>
 
     <script>
-        // ===== VARIÁVEIS GLOBAIS =====
-        let files = []; // Array de arquivos (PDF, PNG, JPG)
-        let extractedLinks = new Map(); // Map<fileName, {url, error, type}>
+        // Variáveis globais
+        let files = [];
+        let extractedLinks = new Map();
         let selectedFiles = new Set();
         let isProcessing = false;
 
-        // ===== ELEMENTOS DOM =====
+        // Elementos DOM
         const elements = {
             fileInput: document.getElementById('fileInput'),
             selectFilesBtn: document.getElementById('selectFilesBtn'),
@@ -499,7 +498,7 @@
             emptyState: document.getElementById('emptyState')
         };
 
-        // ===== INICIALIZAÇÃO =====
+        // Inicialização
         function initApp() {
             loadScripts();
             setupEventListeners();
@@ -508,7 +507,7 @@
 
         async function loadScripts() {
             try {
-                // Carregar PDF.js (apenas para PDF)
+                // Carregar PDF.js
                 const pdfScript = document.createElement('script');
                 pdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
                 await new Promise((resolve, reject) => {
@@ -517,7 +516,7 @@
                     document.head.appendChild(pdfScript);
                 });
 
-                // Carregar jsQR (para todos os formatos)
+                // Carregar jsQR
                 const qrScript = document.createElement('script');
                 qrScript.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
                 await new Promise((resolve, reject) => {
@@ -530,34 +529,29 @@
                 window.pdfjsLib.GlobalWorkerOptions.workerSrc = 
                     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-                console.log('Bibliotecas carregadas com sucesso');
+                console.log('Bibliotecas carregadas');
                 
             } catch (error) {
                 console.error('Erro ao carregar bibliotecas:', error);
-                showNotification('Erro ao carregar bibliotecas necessárias', 'error');
+                showNotification('Erro ao carregar bibliotecas', 'error');
             }
         }
 
         function setupEventListeners() {
-            // Upload de arquivos
             elements.selectFilesBtn.addEventListener('click', () => elements.fileInput.click());
             elements.fileInput.addEventListener('change', handleFileSelect);
             
-            // Drag and drop
             elements.dropArea.addEventListener('dragover', handleDragOver);
             elements.dropArea.addEventListener('dragleave', handleDragLeave);
             elements.dropArea.addEventListener('drop', handleDrop);
             
-            // Botões principais
             elements.extractBtn.addEventListener('click', extractAllQRCodes);
             elements.openAllBtn.addEventListener('click', openAllSelected);
             elements.clearBtn.addEventListener('click', clearAll);
             
-            // Controles de seleção
             elements.selectAllCheckbox.addEventListener('change', toggleSelectAll);
         }
 
-        // ===== MANIPULAÇÃO DE ARQUIVOS =====
         function handleFileSelect(event) {
             const selectedFiles = Array.from(event.target.files).filter(isSupportedFile);
             addFiles(selectedFiles);
@@ -620,7 +614,6 @@
         }
 
         function addFiles(newFiles) {
-            // Evitar duplicatas
             const uniqueFiles = newFiles.filter(newFile => 
                 !files.some(existingFile => 
                     existingFile.name === newFile.name && 
@@ -636,7 +629,6 @@
             showNotification(`${uniqueFiles.length} arquivo(s) adicionado(s)`);
         }
 
-        // ===== ATUALIZAÇÃO DA UI =====
         function updateUI() {
             const hasFiles = files.length > 0;
             const hasExtracted = extractedLinks.size > 0;
@@ -646,13 +638,10 @@
             elements.openAllBtn.disabled = !hasSelected;
             elements.clearBtn.disabled = !hasFiles;
             
-            // Mostrar/ocultar controles de seleção
             elements.selectionControls.style.display = hasExtracted ? 'flex' : 'none';
             
-            // Atualizar contador
             elements.selectedCount.textContent = selectedFiles.size;
             
-            // Atualizar checkbox "selecionar todos"
             const allExtracted = Array.from(extractedLinks.keys());
             const allSelected = allExtracted.every(file => selectedFiles.has(file));
             elements.selectAllCheckbox.checked = allSelected && allExtracted.length > 0;
@@ -661,7 +650,6 @@
         function updateFileList() {
             const filesList = document.getElementById('filesList');
             
-            // Remover estado vazio se houver arquivos
             if (files.length > 0) {
                 elements.emptyState.style.display = 'none';
             } else {
@@ -671,10 +659,8 @@
                 return;
             }
             
-            // Limpar lista
             filesList.innerHTML = '';
             
-            // Adicionar cada arquivo
             files.forEach((file, index) => {
                 const fileItem = createFileItem(file, index);
                 filesList.appendChild(fileItem);
@@ -737,7 +723,6 @@
                 </div>
             `;
             
-            // Adicionar evento ao checkbox
             if (hasLink) {
                 const checkbox = fileItem.querySelector('.file-select');
                 checkbox.addEventListener('change', function() {
@@ -748,7 +733,6 @@
             return fileItem;
         }
 
-        // ===== SELEÇÃO DE ARQUIVOS =====
         function toggleFileSelection(fileName, selected) {
             if (selected) {
                 selectedFiles.add(fileName);
@@ -756,7 +740,6 @@
                 selectedFiles.delete(fileName);
             }
             
-            // Atualizar estilo do item
             const fileItems = document.querySelectorAll('.file-item');
             fileItems.forEach(item => {
                 const checkbox = item.querySelector('.file-select');
@@ -772,19 +755,15 @@
             const allExtracted = Array.from(extractedLinks.keys());
             
             if (elements.selectAllCheckbox.checked) {
-                // Selecionar todos
                 allExtracted.forEach(file => selectedFiles.add(file));
             } else {
-                // Desmarcar todos
                 allExtracted.forEach(file => selectedFiles.delete(file));
             }
             
-            // Atualizar checkboxes
             document.querySelectorAll('.file-select').forEach(checkbox => {
                 checkbox.checked = elements.selectAllCheckbox.checked;
             });
             
-            // Atualizar estilos
             document.querySelectorAll('.file-item').forEach(item => {
                 const checkbox = item.querySelector('.file-select');
                 if (checkbox) {
@@ -795,7 +774,6 @@
             updateUI();
         }
 
-        // ===== EXTRAÇÃO DE QRCODES =====
         async function extractAllQRCodes() {
             if (files.length === 0 || isProcessing) return;
             
@@ -825,7 +803,6 @@
                             error: null,
                             type: fileType
                         });
-                        // Selecionar automaticamente após extração
                         selectedFiles.add(file.name);
                     } else {
                         extractedLinks.set(file.name, {
@@ -843,7 +820,6 @@
                     });
                 }
                 
-                // Atualizar item específico
                 updateFileItem(i);
             }
             
@@ -856,7 +832,6 @@
             showNotification(`${successfulExtractions} QRCode(s) extraído(s) com sucesso`);
         }
 
-        // Extrair QRCode de PDF
         async function extractQRCodeFromPDF(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -866,11 +841,9 @@
                         const typedArray = new Uint8Array(event.target.result);
                         const pdf = await window.pdfjsLib.getDocument({ data: typedArray }).promise;
                         
-                        // Verificar apenas a primeira página (para velocidade)
                         const page = await pdf.getPage(1);
                         const viewport = page.getViewport({ scale: 1.5 });
                         
-                        // Renderizar página em canvas
                         const canvas = document.createElement('canvas');
                         const context = canvas.getContext('2d');
                         canvas.height = viewport.height;
@@ -881,10 +854,8 @@
                             viewport: viewport
                         }).promise;
                         
-                        // Extrair dados da imagem
                         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                         
-                        // Detectar QRCode
                         const code = window.jsQR(imageData.data, imageData.width, imageData.height, {
                             inversionAttempts: 'dontInvert',
                         });
@@ -901,30 +872,24 @@
             });
         }
 
-        // Extrair QRCode de imagem (PNG, JPG)
         async function extractQRCodeFromImage(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 
                 reader.onload = async function(event) {
                     try {
-                        // Criar imagem
                         const img = new Image();
                         
                         img.onload = function() {
-                            // Criar canvas
                             const canvas = document.createElement('canvas');
                             const context = canvas.getContext('2d');
                             canvas.width = img.width;
                             canvas.height = img.height;
                             
-                            // Desenhar imagem no canvas
                             context.drawImage(img, 0, 0);
                             
-                            // Extrair dados da imagem
                             const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                             
-                            // Detectar QRCode
                             const code = window.jsQR(imageData.data, imageData.width, imageData.height, {
                                 inversionAttempts: 'dontInvert',
                             });
@@ -948,7 +913,6 @@
             });
         }
 
-        // ===== FUNÇÕES DE ABERTURA =====
         function openLink(fileName) {
             const linkInfo = extractedLinks.get(fileName);
             if (linkInfo && linkInfo.url) {
@@ -966,17 +930,15 @@
                 return;
             }
             
-            // Abrir cada link em uma nova aba
             linksToOpen.forEach((linkInfo, index) => {
                 setTimeout(() => {
                     window.open(linkInfo.url, '_blank', 'noopener,noreferrer');
-                }, index * 100); // Pequeno delay para evitar bloqueio
+                }, index * 100);
             });
             
             showNotification(`${linksToOpen.length} link(s) abertos`);
         }
 
-        // ===== UTILITÁRIOS =====
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -1038,7 +1000,7 @@
             showNotification('Todos os arquivos removidos');
         }
 
-        // ===== INICIAR APLICAÇÃO =====
+        // Iniciar aplicação
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
